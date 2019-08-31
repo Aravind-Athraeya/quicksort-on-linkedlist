@@ -1,115 +1,171 @@
-// Ofure Ukpebor
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
+// ConsoleApplication2.cpp : Defines the entry point for the console application.
+//
 
-typedef struct listnode
+#include "stdafx.h"
+
+#include <iostream>
+#include<conio.h>
+#include <sstream>
+#include<stdio.h>
+#include<stdlib.h>
+#include <queue>
+#include <unordered_set>
+
+using namespace std;
+
+
+
+
+typedef struct ListNode
 {
-	int key;
-	struct listnode * next;
-} ListNode;
+	int value;
+	struct ListNode *header;
+	struct ListNode *Next;
+	struct ListNode *tailer;
+}node;
+
+
+
+
+void push(node** head_ref, int new_data)
+{
+	/* allocate node */
+	node* new_node = new node();
+
+	/* put in the data  */
+	new_node->value = new_data;
+
+	/* link the old list off the new node */
+	new_node->Next = (*head_ref);
+
+	/* move the head to point to the new node */
+	(*head_ref) = new_node;
+}
 
 int findListLength(ListNode *list) //returns length of list
 {
 	int counter = 0;
-	for (; list != NULL; list = list->next)
+	for (; list != NULL; list = list->Next)
 	{
 		++counter;
 	}
 	return counter;
 }
 
-ListNode *findRandomPivotNode(ListNode *head_node) //finds pivot node in list
-{
-	int list_length = findListLength(head_node);
-	int pivot_position = rand() % list_length; 
+
+
+
+
+
+node* GetPivot(node* head) {
+
+
+
+	int list_length = findListLength(head);
+	int pivot_position = rand() % list_length;
 
 	for (int count = 0; count < pivot_position; count++)
 	{
-		head_node = head_node->next;
+		head = head->Next;
 	}
-	return head_node;
+	return head;
+
+
+
+
+
 }
 
-ListNode * findLastNode(ListNode * current_node)
+
+node *getTail(node *cur)
 {
-	for (; current_node->next != NULL; current_node = current_node->next);
-	return current_node;
+	while (cur != NULL && cur->Next != NULL)
+		cur = cur->Next;
+	return cur;
 }
 
-ListNode * join(ListNode* left_list, ListNode * pivot, ListNode * right_list)
+
+node * MergeAndReturn(node* left_list, node * pivot, node * right_list)
 {
-	pivot->next = right_list;
+	pivot->Next = right_list;
 
 	if (left_list == NULL)	return pivot;
 
-	ListNode * left_tail = findLastNode(left_list);
-	left_tail->next = pivot;
+	ListNode * left_tail = getTail(left_list);
+	left_tail->Next = pivot;
 
 	return left_list;
 }
 
-ListNode * sort(ListNode * list)
-{
-	if (list == NULL || list->next == NULL) return list;
 
-    ListNode *pivot = findRandomPivotNode(list);
 
-	ListNode *left_sub_list = NULL, *right_sub_list = NULL;
+node* QuickSort(node* head) {
 
-	for (ListNode * current_node = list; current_node != NULL;)
+
+	node *leftSub = NULL;
+	node *rightSub = NULL;
+
+
+	if ((head == NULL) || (head->Next == NULL))
 	{
-		ListNode * next_node = current_node->next;
+		return head;
+	}
+
+
+	node* pivot = GetPivot(head);
+
+
+
+
+
+	for (node * current_node = head; current_node != NULL;)
+	{
+	
+		node * next_node = current_node->Next;
 
 		if (current_node != pivot)
 		{
-			if (current_node->key <= pivot->key)
+			if (current_node->value <= pivot->value)
 			{
-				current_node->next = left_sub_list;
-				left_sub_list = current_node;
+				current_node->Next = leftSub;
+				leftSub = current_node;
 			}
 			else
 			{
-				current_node->next = right_sub_list;
-				right_sub_list = current_node;
+				current_node->Next = rightSub;
+				rightSub = current_node;
 			}
 		}
 		current_node = next_node;
 	}
 
-	return join(sort(left_sub_list), pivot, sort(right_sub_list));
+	return MergeAndReturn(QuickSort(leftSub), pivot, QuickSort(rightSub));
+
+
+
+
+
+
+
+
+	//	return MergedSortedList;
 }
 
-int main(void)
+
+int main()
 {
-	long i;
-	struct listnode *node, *space;
-	//create a linked list of 500000 items
-	space = (struct listnode *)malloc(500000 * sizeof(struct listnode));
-	for (i = 0; i < 500000; i++)
-	{
-		(space + i)->key = 2 * ((17 * i) % 500000);
-		(space + i)->next = space + (i + 1);
-	}
-	(space + 499999)->next = NULL;
-	node = space;
-	//printList(node);
-	printf("\n prepared list, now starting sort\n");
-	node = sort(node);
-	//printList(node);
-	printf("\n checking sorted list\n");
-	for (i = 0; i < 500000; i++)
-	{
-		if (node == NULL)
-		{
-			printf("List ended early\n"); exit(0);
-		}
-		if (node->key != 2 * i)
-		{
-			printf("Node contains wrong value\n"); exit(0);
-		}
-		node = node->next;
-	}
-	printf("Sort successful\n");
-	exit(0);
+	node *lstOne = NULL;
+
+	push(&lstOne, 2);
+	push(&lstOne, 3);
+	push(&lstOne, 21);
+	push(&lstOne, 33);
+	push(&lstOne, 42);
+	push(&lstOne, 53);
+	push(&lstOne, 62);
+	push(&lstOne, 3);
+
+  node* find = 	QuickSort(lstOne);
+
+	return 0;
 }
